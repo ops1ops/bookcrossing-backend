@@ -19,6 +19,7 @@ sequelize.authenticate()
   .then(() => console.log('Connection to the DB has been established successfully'))
   .catch((err) => console.error('Unable to connect to the DB: ', err));
 
+// Creates tables in db automatically on start
 sequelize.sync();
 
 fs

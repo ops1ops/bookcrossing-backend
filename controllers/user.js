@@ -5,7 +5,7 @@ import db from '../db';
 
 const { User } = db;
 
-const EXPIRATION_TIME = 60 * 60;
+const EXPIRATION_TIME = 60 * 60 * 60;
 const SALT = 10;
 
 export const registerUser = async ({ body: { email, login, password, repeatedPassword } }, res) => {

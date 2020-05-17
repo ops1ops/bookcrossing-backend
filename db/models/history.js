@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     locationId: DataTypes.INTEGER,
     ownerId: DataTypes.INTEGER
   }, {});
-  History.associate = function(models) {
-
+  History.associate = function({ Book }) {
+    History.belongsTo(Book, { as: 'books', foreignKey: 'bookId', targetKey: 'id' })
   };
   return History;
 };
