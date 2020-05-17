@@ -19,7 +19,7 @@ export const getLocation = async ({ params: { id } }, res) => {
     const location = await Location.findOne({
       where: { id },
       include: [
-        { association: 'books', attributes: ['id', 'isbn', 'name', 'imageUrl', 'ownerId'] }
+        { association: 'books', attributes: ['id', 'isbn', 'name', 'imageUrl', 'ownerId'], include: ['authors'] }
       ]
   });
 

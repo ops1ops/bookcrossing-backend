@@ -70,7 +70,7 @@ export const getBook = async ({ headers: { ['user-id']: userId } , params: { id 
       return res.send({ ...book.get(), subscribed: !!subscription });
     }
 
-    return res.send(book); // last changes
+    return res.send(book);
   } catch (error) {
     console.log(error);
 
