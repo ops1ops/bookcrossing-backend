@@ -53,24 +53,45 @@ export const getBook = async ({ headers: { ['user-id']: userId } , params: { id 
     const book = await Book.findOne({
       where: { id },
       include: [
-        { association: 'owner' },
+        { association: 'owner', attributes: ['id', 'login'] },
         { association: 'authors', attributes: ['id', 'name'], through: { attributes: [] } },
         { association: 'location', attributes: ['id', 'address', 'name'] },
-        { association: 'history' },
-      ]
+        { association: 'history', include: [{ association: 'location', attributes: ['id', 'name', 'address'] }, { association: 'owner', attributes: ['id', 'login'] }]},
+      ],
+      order: [[{ model: History, as: 'history' }, 'createdAt', 'ASC']]
     });
 
     if (!book) {
       return res.status(404).send({ reason: 'Book was not found' });
     }
 
+    const bookData = await book.get();
+
+    const newHistory = bookData.history.reduce((acc, { location, owner, createdAt }, index) => {
+      if (owner) {
+        return [
+          ...acc,
+          {
+            owner,
+            startTime: createdAt,
+            endTime: bookData.history[index + 1] ? bookData.history[index + 1].createdAt : null,
+            prevLocation: bookData.history[index - 1] ? bookData.history[index - 1].location : null,
+          }
+        ]
+      }
+
+      return acc;
+    }, []);
+
+    const bookDataReturned = { ...bookData, history: newHistory };
+
     if (userId && userId !== 'undefined') {
       const subscription = await Subscription.findOne({ where: { bookId: id, userId }});
 
-      return res.send({ ...book.get(), subscribed: !!subscription });
+      return res.send({ ...bookDataReturned, subscribed: !!subscription });
     }
 
-    return res.send(book);
+    return res.send(bookDataReturned);
   } catch (error) {
     console.log(error);
 
