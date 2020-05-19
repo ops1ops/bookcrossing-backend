@@ -4,9 +4,9 @@ const { Location } = db;
 
 // TODO: get from body only validated fields
 
-export const addLocation = async ({ body: { name, address, description, lat, lon } }, res) => {
+export const addLocation = async ({ userId, body: { name, address, description, lat, lon } }, res) => {
   try {
-    const { id } = await Location.create({ name, address, description, lat, lon });
+    const { id } = await Location.create({ name, address, description, lat, lon, addedBy: userId });
 
     return res.send({ id });
   } catch (error) {
@@ -19,7 +19,8 @@ export const getLocation = async ({ params: { id } }, res) => {
     const location = await Location.findOne({
       where: { id },
       include: [
-        { association: 'books', attributes: ['id', 'isbn', 'name', 'imageUrl', 'ownerId'], include: ['authors'] }
+        { association: 'books', attributes: ['id', 'isbn', 'name', 'imageUrl', 'ownerId'], include: [{ association: 'authors' }, { association: 'reportedBy', through: { attributes: ['description'] }  }] },
+        { association: 'addedByUser' }
       ]
   });
 

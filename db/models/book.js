@@ -11,13 +11,14 @@ module.exports = (sequelize, DataTypes) => {
     pagesCount: DataTypes.INTEGER,
     publishYear: DataTypes.INTEGER,
   }, {});
-  Book.associate = function({ User, Location, Author, Genre, History }) {
+  Book.associate = function({ User, Location, Author, History, Report}) {
     Book.belongsTo(User, { as: 'owner', foreignKey: 'ownerId', targetKey: 'id' });
     Book.belongsTo(User, { as: 'provider', foreignKey: 'providedBy', targetKey: 'id' });
     Book.belongsTo(Location, { as: 'location', foreignKey: 'locationId', targetKey: 'id' });
 
     Book.belongsToMany(Author, { through: 'BookAuthors', as: 'authors' });
     Book.belongsToMany(User, { through: 'Subscriptions', as: 'subscribedUsers' });
+    Book.belongsToMany(User, { as: 'reportedBy', through: { model: Report, as: 'report' } });
 
     Book.hasMany(History, { as: 'history', foreignKey: 'bookId' });
   };

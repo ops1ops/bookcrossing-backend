@@ -1,4 +1,4 @@
-import { Book, Location, Author, Subscription, History, User } from '../db';
+import { Book, Location, Author, Subscription, History, User, Report } from '../db';
 import mailer from '../mailer';
 
 export const getAllBooks = async (req, res) => {
@@ -15,7 +15,7 @@ export const getAllBooks = async (req, res) => {
   return res.send(books);
 };
 
-export const addBook = async ({ body: { isbn, name, imageUrl, description, pagesCount, publishYear, providedBy, locationName, authors } }, res) => {
+export const addBook = async ({ userId, body: { isbn, name, imageUrl, description, pagesCount, publishYear, providedBy, locationName, authors } }, res) => {
   try {
     const { id: locationId } = await Location.findOne({ where: { name: locationName } });
 
@@ -87,8 +87,9 @@ export const getBook = async ({ headers: { ['user-id']: userId } , params: { id 
 
     if (userId && userId !== 'undefined') {
       const subscription = await Subscription.findOne({ where: { bookId: id, userId }});
+      const report = await Report.findOne({ where: { bookId: id, userId }});
 
-      return res.send({ ...bookDataReturned, subscribed: !!subscription });
+      return res.send({ ...bookDataReturned, subscribed: !!subscription, reported: !!report });
     }
 
     return res.send(bookDataReturned);
@@ -175,6 +176,21 @@ export const leaveBookByUser = async ({ body: { locationId }, params: { id } }, 
 
     res.send({ taken: !update });
   } catch (error) {
+    res.status(500).send({ reason: 'Something went wrong' });
+  }
+};
+
+export const reportBook = async ({ userId, body: { description }, params: { id } }, res) => {
+  try {
+    const report = await Report.create({ BookId: id, UserId: userId, description });
+
+    if (!report) {
+      return res.status(400).send({ reason: 'Could not report' });
+    }
+
+    res.send({ reported: !!report });
+  } catch (error) {
+    console.log(error);
     res.status(500).send({ reason: 'Something went wrong' });
   }
 };
