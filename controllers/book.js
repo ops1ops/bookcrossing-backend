@@ -10,7 +10,6 @@ export const getAllBooks = async (req, res) => {
       { association: 'location', attributes: ['id', 'name', 'address'] },
     ]
   });
-  console.log(books);
 
   return res.send(books);
 };

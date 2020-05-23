@@ -10,7 +10,7 @@ const SALT = 10;
 
 export const registerUser = async ({ body: { email, login, password, repeatedPassword } }, res) => {
   if (password !== repeatedPassword) {
-    return res.status(400).send({ reason: 'Passwords dont match' });
+    return res.status(403).send({ reason: 'Passwords dont match' });
   }
 
   try {
@@ -30,14 +30,14 @@ export const loginUser = async ({ body: { email, password } }, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).send({ reason: 'User not found' });
+      return res.status(403).send({ reason: 'User not found' });
     }
 
     const { id, password: encryptedPassword, login } = user;
     const isPasswordValid = bcrypt.compareSync(password, encryptedPassword);
 
     if (!isPasswordValid) {
-      res.status(401).send({ message: 'Incorrect password' });
+      res.status(403).send({ message: 'Incorrect password' });
     }
 
     const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: EXPIRATION_TIME });
