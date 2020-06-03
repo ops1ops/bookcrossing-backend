@@ -38,7 +38,12 @@ export const getLocation = async ({ params: { id } }, res) => {
 
 export const getLocations = async (req, res) => {
   try {
-    const locations = await Location.findAll();
+    const locations = await Location.findAll({
+      include: [
+        { association: 'books', attributes: ['id', 'isbn', 'name', 'imageUrl', 'ownerId'], include: [{ association: 'authors' }, { association: 'reportedBy', through: { attributes: ['description'] }  }] },
+        { association: 'addedByUser' }
+      ]
+    });
 
     return res.send(locations);
   } catch (error) {
