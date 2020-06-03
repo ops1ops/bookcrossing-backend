@@ -49,3 +49,26 @@ export const loginUser = async ({ body: { email, password } }, res) => {
     return res.status(500).send({ reason: 'Could not login user' });
   }
 };
+
+export const getUser = async ({ params: { id } }, res) => {
+  try {
+    const user = await User.findOne({
+      where: { id },
+      include: [
+        { association: 'reportedBooks', include: [{ association: 'authors', attributes: ['id', 'name'], through: { attributes: [] } }] },
+        { association: 'ownedBooks', include: [{ association: 'authors', attributes: ['id', 'name'], through: { attributes: [] } }] },
+        { association: 'locations' },
+      ],
+    });
+
+    if (!user) {
+      return res.status(403).send({ reason: 'User not found' });
+    }
+
+    return res.send(user);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).send({ reason: 'Something went wrong' });
+  }
+};

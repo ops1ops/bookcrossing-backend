@@ -4,12 +4,13 @@ const { Location } = db;
 
 // TODO: get from body only validated fields
 
-export const addLocation = async ({ userId, body: { name, address, description, lat, lon } }, res) => {
+export const addLocation = async ({ userId, body: { name, address, description, lat, lon, imageUrl } }, res) => {
   try {
-    const { id } = await Location.create({ name, address, description, lat, lon, addedBy: userId });
+    const { id } = await Location.create({ name, address, description, lat, lon, imageUrl, addedBy: userId });
 
     return res.send({ id });
   } catch (error) {
+    console.error(error);
     return res.status(500).send({ reason: 'Something went wrong. Probably location is already exists' });
   }
 };
